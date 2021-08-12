@@ -1,105 +1,50 @@
-# MikBill-Sberbank-EPS-PHP-API
+# MikBill-Sberbank-EPS-API
 
-API для биллинговой системы [АСР "MikBill"](https://mikbill.pro), позволящий осуществлять прием платежей через платежную систему [ПАО "Сбербанк"](https://sberbank.ru) (все каналы, отделения, Сбербанк Онл@йн).
+API для интеграции биллинговой системы ["MikBill"](https://mikbill.pro) с единой платежной системой [ПАО "Сбербанка"](https://sberbank.ru)
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/itpanda-llc/mikbill-sberbank-eps-api)](https://packagist.org/packages/itpanda-llc/mikbill-sberbank-eps-api/stats)
+![Packagist License](https://img.shields.io/packagist/l/itpanda-llc/mikbill-sberbank-eps-api)
+![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/itpanda-llc/mikbill-sberbank-eps-api)
 
 ## Ссылки
 
 * [Разработка](https://github.com/itpanda-llc)
-* [О проекте ("АСР MikBill")](https://mikbill.pro)
-* [Документация ("АСР MikBill")](https://wiki.mikbill.pro)
-* [Сообщество ("АСР MikBill")](https://mikbill.userecho.com)
-* [О проекте (ПАО "Сбербанк")](https://sberbank.ru)
-* [Типовой протокол Сбербанка_1_v1](%D0%A2%D0%B8%D0%BF%D0%BE%D0%B2%D0%BE%D0%B9%20%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB%20%D0%A1%D0%B1%D0%B5%D1%80%D0%B1%D0%B0%D0%BD%D0%BA%D0%B0_1_v1.docx)
-* [Требования к online интерфейсу клиента Сбербанка_v1](%D0%A2%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BA%20online%20%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D1%83%20%D0%BA%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%D0%B0%20%D0%A1%D0%B1%D0%B5%D1%80%D0%B1%D0%B0%D0%BD%D0%BA%D0%B0_v1.docx)
+* [О проекте (MikBill)](https://mikbill.pro)
+* [О проекте (Сбербанк)](https://sberbank.ru)
+* [Документация (MikBill)](https://wiki.mikbill.pro)
+* [Документация (Сбербанк)](https://www.sberbank.ru/common/img/uploaded/files/pdf/payments_receiving/usloviya_po_dogovoru_online.pdf)
 
 ## Возможности
 
-* Формирование статуса ответа и контента
-* Проверка параметров запроса
-* Проверка и вывод информации о лицевом счете и платеже
-* Добавление категории платежа
-* Проведение платежа и вывод информации о платеже
+* Проверка идентификатора плательщика
+* Создание платежной транзакции
 
 ## Требования
 
 * PHP >= 7.2
+* libxml
 * PDO
 * SimpleXML
-
+* vlucas/phpdotenv ^5.3
+  
 ## Установка
 
 ```shell script
-php composer.phar require "itpanda-llc/mikbill-sberbank-eps-php-api"
+composer require itpanda-llc/mikbill-sberbank-eps-api
 ```
 
-или
+## Конфигурация
+
+* Копирование файла [".env.example"](.env.example) в ".env"
 
 ```shell script
-git clone https://github.com/itpanda-llc/mikbill-sberbank-eps-php-api
+copy .env.example .env
 ```
 
-## Конфигурация и начало пользования
-
-##### Указание параметров в некоторых файлах
-
-1. Параметры аутентификации - ["src/Auth.php"](src/Auth.php) (информация банка)
-2. Параметры услуги - ["src/Service.php"](src/Service.php) (информация банка)
-3. Параметры категории платежа - ["src/Category.php"](src/Category.php)
-
-##### Создание индексного файла, например "index.php" (или использование файла из репозитория, с откорректированными указателями на файлы), в требуемом каталоге, для веб-сервера
-
-```php
-<?php
-
-/*
- * Актуально для ОС "CentOS".
- * Возможно не изменять указатели на файлы, при условии размещения файла с этим кодом (файла из репозитория)
- * в директории по адресу "/var/www/mikbill/admin/process/имя директории, например, например "sberbank"/",
- * а содержимого репозитория в директории по адресу "/var/mikbill/__ext/mikbill-sberbank-eps-php-api/".
- */
-
-// Определение файла конфигурации АСР "MikBill"
-define ('CONFIG', '../../app/etc/config.xml');
-
-// Подключение инструмента
-require_once '../../../../../mikbill/__ext/mikbill-sberbank-eps-php-api/autoload.php';
-
-// Импорт составляющих
-use Panda\MikBill\Sberbank\EPSAPI\Content;
-use Panda\MikBill\Sberbank\EPSAPI\Logic;
-use Panda\MikBill\Sberbank\EPSAPI\Status;
-use Panda\MikBill\Sberbank\EPSAPI\Response;
-use Panda\MikBill\Sberbank\EPSAPI\Exception\DebugException;
-
-// Отправка заголовка (тип контента)
-header(Content::TYPE);
-
-// Запуск приложения
-$logic = new Logic;
-
-try {
-    // Обработка запроса
-    $logic->run();
-
-    // Отправка заголовка (HTTP-статус)
-    header($logic->getStatus());
-
-    // Вывод контента
-    print_r($logic->getContent());
-} catch (DebugException $e) {
-    // Отправка заголовка (HTTP-статус - "500 Internal")
-    header(Status::INTERNAL_500);
-
-    // Вывод контента (сообщение об ошибке)
-    print_r(Response::debug($e->getMessage()));
-}
-```
+* Указание параметров в файле ".env"
+* Указание путей к интерфейсу в файле ["index.php"](examples/www/mikbill/admin/api/sberbank/eps/index.php), предварительно размещенного в каталоге веб-сервера
 
 ## Примеры ответов интерфейса
-
-Проверка аккаунта
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -115,13 +60,11 @@ try {
 </response>
 ```
 
-Проверка и проведение платежа
-
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <response>
-    <EXT_ID>1911105</EXT_ID>
-    <REG_DATE>26.11.2019_12:47:21</REG_DATE>
+    <EXT_ID>191120</EXT_ID>
+    <REG_DATE>16.11.2019_14:02:10</REG_DATE>
     <AMOUNT>580.00</AMOUNT>
     <CODE>0</CODE>
     <MESSAGE>Платеж принят</MESSAGE>
@@ -131,15 +74,13 @@ try {
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <response>
-    <EXT_ID>1911105</EXT_ID>
-    <REG_DATE>26.11.2019_12:47:21</REG_DATE>
+    <EXT_ID>191120</EXT_ID>
+    <REG_DATE>16.11.2019_14:02:10</REG_DATE>
     <AMOUNT>580.00</AMOUNT>
     <CODE>8</CODE>
     <MESSAGE>Дублирование транзакции</MESSAGE>
 </response>
 ```
-
-Сообщения об ошибках
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -160,15 +101,7 @@ try {
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <response>
-    <CODE>300</CODE>
-    <MESSAGE>Платеж не принят</MESSAGE>
-</response>
-```
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<response>
-    <CODE>9</CODE>
-    <MESSAGE>Неверная сумма платежа</MESSAGE>
+    <CODE>3</CODE>
+    <MESSAGE>Абонент не найден</MESSAGE>
 </response>
 ```
