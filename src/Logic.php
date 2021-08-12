@@ -54,10 +54,10 @@ class Logic
     public function __construct()
     {
         $this->action = $_REQUEST[Param::ACTION] ?? null;
-        $this->action = $_REQUEST[Param::ACCOUNT] ?? null;
-        $this->action = $_REQUEST[Param::AMOUNT] ?? null;
-        $this->action = $_REQUEST[Param::PAY_ID] ?? null;
-        $this->action = $_REQUEST[Param::PAY_DATE] ?? null;
+        $this->account = $_REQUEST[Param::ACCOUNT] ?? null;
+        $this->amount = $_REQUEST[Param::AMOUNT] ?? null;
+        $this->payId = $_REQUEST[Param::PAY_ID] ?? null;
+        $this->payDate = $_REQUEST[Param::PAY_DATE] ?? null;
     }
 
     public function run(): void
@@ -160,7 +160,7 @@ class Logic
                 return;
             }
 
-            if (($_ENV['MIN_PAYMENT_AMOUNT'] !== 0)
+            if (((float) $_ENV['MIN_PAYMENT_AMOUNT'] !== (float) 0)
                 && ((float) $_ENV['MIN_PAYMENT_AMOUNT'] > (float) $this->amount))
             {
                 $this->status = Status::BAD_REQUEST_400;
@@ -170,7 +170,7 @@ class Logic
                 return;
             }
 
-            if (($_ENV['MAX_PAYMENT_AMOUNT'] !== 0)
+            if (((float) $_ENV['MAX_PAYMENT_AMOUNT'] !== (float) 0)
                 && ((float) $_ENV['MAX_PAYMENT_AMOUNT'] < (float) $this->amount))
             {
                 $this->status = Status::BAD_REQUEST_400;

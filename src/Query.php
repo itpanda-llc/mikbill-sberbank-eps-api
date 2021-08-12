@@ -22,7 +22,7 @@ class Query
      */
     public static function getAccount(string $account): ?array
     {
-        $sth = Statement::prepare(SQL::GET_ACCOUNT);
+        $sth = Statement::prepare(Sql::GET_ACCOUNT);
 
         $sth->bindParam(Holder::ACCOUNT, $account);
         $sth->bindParam(Holder::SERVICE_NAME, $_ENV['SERVICE_NAME']);
@@ -40,11 +40,13 @@ class Query
      */
     public static function getPayment(string $payId): ?array
     {
-        $sth = Statement::prepare(SQL::GET_PAYMENT);
+        $sth = Statement::prepare(Sql::GET_PAYMENT);
+
+        $categoryId = (int) $_ENV['CATEGORY_ID'];
 
         $sth->bindParam(Holder::PAY_ID, $payId);
         $sth->bindParam(Holder::CATEGORY_ID,
-            $_ENV['CATEGORY_ID'],
+            $categoryId,
             \PDO::PARAM_INT);
 
         Statement::execute($sth);
@@ -59,10 +61,12 @@ class Query
      */
     public static function checkCategory(): bool
     {
-        $sth = Statement::prepare(SQL::CHECK_CATEGORY);
+        $sth = Statement::prepare(Sql::CHECK_CATEGORY);
+
+        $categoryId = (int) $_ENV['CATEGORY_ID'];
 
         $sth->bindParam(Holder::CATEGORY_ID,
-            $_ENV['CATEGORY_ID'],
+            $categoryId,
             \PDO::PARAM_INT);
 
         Statement::execute($sth);
@@ -75,12 +79,15 @@ class Query
      */
     public static function addCategory(): bool
     {
-        $sth = Statement::prepare(SQL::ADD_CATEGORY);
+        $sth = Statement::prepare(Sql::ADD_CATEGORY);
+
+        $categoryId = (int) $_ENV['CATEGORY_ID'];
 
         $sth->bindParam(Holder::CATEGORY_ID,
-            $_ENV['CATEGORY_ID'],
+            $categoryId,
             \PDO::PARAM_INT);
-        $sth->bindParam(Holder::CATEGORY_NAME, $_ENV['CATEGORY_NAME']);
+        $sth->bindParam(Holder::CATEGORY_NAME,
+            $_ENV['CATEGORY_NAME']);
 
         Statement::execute($sth);
 
@@ -97,11 +104,13 @@ class Query
                                       string $amount,
                                       string $payId): bool
     {
-        $sth = Statement::prepare(SQL::ADD_PAYMENT);
+        $sth = Statement::prepare(Sql::ADD_PAYMENT);
+
+        $categoryId = (int) $_ENV['CATEGORY_ID'];
 
         $sth->bindParam(Holder::PAY_ID, $payId);
         $sth->bindParam(Holder::CATEGORY_ID,
-            $_ENV['CATEGORY_ID'],
+            $categoryId,
             \PDO::PARAM_INT);
         $sth->bindParam(Holder::ACCOUNT, $account);
         $sth->bindParam(Holder::AMOUNT, $amount);
@@ -119,7 +128,7 @@ class Query
      */
     public static function setPayment(string $payId): bool
     {
-        $sth = Statement::prepare(SQL::SET_PAYMENT);
+        $sth = Statement::prepare(Sql::SET_PAYMENT);
 
         $sth->bindParam(Holder::PAY_ID, $payId);
 
